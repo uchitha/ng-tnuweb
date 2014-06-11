@@ -1,0 +1,15 @@
+Personal Computing	
+	- Virus Cleanup
+	- Performance optimization
+	- Password management
+	- Software install & maintenance
+
+Media Solutions
+	- Media Server setup
+	- Personal media backup
+	- Media enhancing
+
+Software Solutions
+	- Application design
+	- Data transformations
+	- Report/Chart generation
