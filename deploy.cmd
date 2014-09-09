@@ -1,5 +1,3 @@
-@if "%SCM_TRACE_LEVEL%" NEQ "4" @echo off
-
 :: ----------------------
 :: KUDU Deployment Script
 :: Version: 0.1.11
@@ -88,21 +86,36 @@ goto :EOF
 :Deployment
 echo Handling node.js deployment.
 
-:: 1. KuduSync
-IF /I "%IN_PLACE_DEPLOYMENT%" NEQ "1" (
-  call :ExecuteCmd "%KUDU_SYNC_CMD%" -v 50 -f "%DEPLOYMENT_SOURCE%" -t "%DEPLOYMENT_TARGET%" -n "%NEXT_MANIFEST_PATH%" -p "%PREVIOUS_MANIFEST_PATH%" -i ".git;.hg;.deployment;deploy.cmd"
-  IF !ERRORLEVEL! NEQ 0 goto error
-)
-
-:: 2. Select node version
+:: 1. Select node version
 call :SelectNodeVersion
 
-:: 3. Install npm packages
-IF EXIST "%DEPLOYMENT_TARGET%\package.json" (
-  pushd "%DEPLOYMENT_TARGET%"
-  call :ExecuteCmd !NPM_CMD! install --production
+:: 2. Install npm packages
+IF EXIST "%DEPLOYMENT_SOURCE%\package.json" (
+  call :ExecuteCmd !NPM_CMD! install 
   IF !ERRORLEVEL! NEQ 0 goto error
   popd
+)
+
+# 3. Install bower packages  
+IF EXIST "%DEPLOYMENT_SOURCE/bower.json" (  
+  call :ExecuteCmd !NPM_CMD! install bower  
+  echo "installing bower OK"  
+  ./node_modules/.bin/bower install  
+  echo "bower installed"  
+)
+
+# 4. Run grunt  
+IF EXIST "$DEPLOYMENT_SOURCE/Gruntfile.js" (  
+  call :ExecuteCmd !NPM_CMD! install grunt-cli  
+  echo "installing grunt"  
+  ./node_modules/.bin/grunt build compile
+  echo "grunt build executed"  
+) 
+
+:: 5. KuduSync
+IF /I "%IN_PLACE_DEPLOYMENT%" NEQ "1" (
+  call :ExecuteCmd "%KUDU_SYNC_CMD%" -v 500 -f "%DEPLOYMENT_SOURCE%/build" -t "%DEPLOYMENT_TARGET%" -n "%NEXT_MANIFEST_PATH%" -p "%PREVIOUS_MANIFEST_PATH%" -i ".git;.hg;.deployment;deploy.cmd"
+  IF !ERRORLEVEL! NEQ 0 goto error
 )
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
