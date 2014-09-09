@@ -96,7 +96,7 @@ IF EXIST "%DEPLOYMENT_SOURCE%\package.json" (
   popd
 )
 
-# 3. Install bower packages  
+:: 3. Install bower packages  
 IF EXIST "%DEPLOYMENT_SOURCE/bower.json" (  
   call :ExecuteCmd !NPM_CMD! install bower  
   echo "installing bower OK"  
@@ -104,7 +104,7 @@ IF EXIST "%DEPLOYMENT_SOURCE/bower.json" (
   echo "bower installed"  
 )
 
-# 4. Run grunt  
+:: 4. Run grunt  
 IF EXIST "$DEPLOYMENT_SOURCE/Gruntfile.js" (  
   call :ExecuteCmd !NPM_CMD! install grunt-cli  
   echo "installing grunt"  
